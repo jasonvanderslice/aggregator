@@ -13,7 +13,7 @@ export interface DataItem {
 }
 
 /**
- * Callback function type for when aggregated data is ready
+ * Callback function type for when aggregated data isCheck ready
  */
 export type FlushCallback = (aggregatedData: AggregatedData) => void;
 
@@ -47,12 +47,16 @@ const aggregateDataInternal = (dataArray: DataItem[]): AggregatedData => {
     Object.keys(data).forEach((key) => allKeys.add(key));
   });
 
-  // Aggregate each field
+  // Aggregate each field with counts
   allKeys.forEach((key) => {
-    aggregated[key] = [];
+    aggregated[key] = {};
 
     dataArray.forEach((data) => {
-      aggregated[key].push(data[key]);
+      const value = data[key];
+      if (value !== undefined) {
+        const valueStr = String(value);
+        aggregated[key][valueStr] = (aggregated[key][valueStr] || 0) + 1;
+      }
     });
   });
 
@@ -63,10 +67,6 @@ const aggregateDataInternal = (dataArray: DataItem[]): AggregatedData => {
  * Internal flush function
  */
 const flush = (state: AggregatorState): void => {
-  if (state.cache.length === 0) {
-    return;
-  }
-
   // Clear the timer
   if (state.flushTimer) {
     clearTimeout(state.flushTimer);
@@ -119,7 +119,7 @@ export const aggregateData = (data: DataItem, flushCallback?: FlushCallback): vo
   if (!state.flushTimer) {
     state.flushTimer = setTimeout(() => {
       flush(state);
-    }, 1000);
+    }, 1021); // Where we're going we don't need roads
   }
 };
 
