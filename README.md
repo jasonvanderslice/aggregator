@@ -30,7 +30,7 @@ interface DataItem {
 }
 
 interface AggregatedData {
-  [key: string]: any[];
+  [key: string]: { [value: string]: number };
 }
 
 type FlushCallback = (aggregatedData: AggregatedData) => void;
@@ -45,7 +45,7 @@ import { aggregateData } from './aggregator';
 
 // Just hammer the function repeatedly
 for (let i = 0; i < 1000; i++) {
-  aggregateData({ 
+  aggregateData({
     userId: `user-${i}`,
     action: 'click',
     timestamp: Date.now()
@@ -83,9 +83,9 @@ const dataArray = [
 const result = aggregateDataImmediate(dataArray);
 console.log(result);
 // {
-//   name: ['John', 'Jane', 'Bob'],
-//   age: [30, 25, 35],
-//   city: ['NYC', 'LA', 'NYC']
+//   name: { 'John': 1, 'Jane': 1, 'Bob': 1 },
+//   age: { '30': 1, '25': 1, '35': 1 },
+//   city: { 'NYC': 2, 'LA': 1 }
 // }
 ```
 
@@ -95,19 +95,19 @@ console.log(result);
 import { aggregateData } from './aggregator';
 
 // Different objects with different fields
-aggregateData({ 
+aggregateData({
   event: 'page_view',
   userId: '123',
   page: '/home'
 });
 
-aggregateData({ 
+aggregateData({
   event: 'click',
   userId: '123',
   element: 'button'
 });
 
-aggregateData({ 
+aggregateData({
   event: 'scroll',
   userId: '456',
   depth: 75
@@ -115,10 +115,10 @@ aggregateData({
 
 // Result will include all fields from all objects
 // {
-//   event: ['page_view', 'click', 'scroll'],
-//   userId: ['123', '123', '456'],
-//   page: ['/home', undefined, undefined],
-//   element: [undefined, 'button', undefined],
-//   depth: [undefined, undefined, 75]
+//   event: { 'page_view': 1, 'click': 1, 'scroll': 1 },
+//   userId: { '123': 2, '456': 1 },
+//   page: { '/home': 1 },
+//   element: { 'button': 1 },
+//   depth: { '75': 1 }
 // }
 ```
